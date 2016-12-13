@@ -22,8 +22,15 @@ def read_file(filepath):
         return f.read()
 
 
+def is_string(obj):
+    try:
+        return isinstance(obj, basestring)
+    except NameError:
+        return isinstance(obj, str)
+
+
 def get_include_name(value):
-    if isinstance(value, basestring):
+    if is_string(value):
         rv = INCLUDE_VALUE_PATTERN.search(value)
         if rv:
             return rv.groups()[0]
@@ -34,7 +41,7 @@ def walk_through_to_include(o, dirpath):
     if isinstance(o, dict):
         is_include_exp = False
         if set(o) == set([INCLUDE_KEY]):
-            include_name = get_include_name(o.values()[0])
+            include_name = get_include_name(list(o.values())[0])
             if include_name:
                 is_include_exp = True
                 o.clear()
@@ -45,7 +52,7 @@ def walk_through_to_include(o, dirpath):
         if is_include_exp:
             return
 
-        for k, v in o.iteritems():
+        for k, v in o.items():
             if isinstance(v, OBJECT_TYPES):
                 walk_through_to_include(v, dirpath)
     elif isinstance(o, list):
@@ -113,7 +120,7 @@ def main():
 
     args = parser.parse_args()
 
-    print build_json_include(args.dirpath, args.filename)
+    print(build_json_include(args.dirpath, args.filename))
 
 
 if __name__ == '__main__':
